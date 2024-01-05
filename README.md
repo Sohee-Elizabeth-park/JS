@@ -1,2 +1,1 @@
-# Java-Script
-HTML + CSS + JS
+Java Script 학습 내용
