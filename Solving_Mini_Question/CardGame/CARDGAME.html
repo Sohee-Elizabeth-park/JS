@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardGame</title>
+
+    <style>
+        .selectBtn {
+            margin-bottom: 10px;
+        }
+
+        .cardFrontBox,
+        .cardBackBox {
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="selectBtn">
+        <!--button-->
+        <button>카드 전체 보이기</button>
+        <button>카드 전체 뒤집기</button>
+        <button>카드 섞기</button>
+        <button>카드 전체 숨기기</button>
+    </div>
+
+    <div class="cardFrontBox"></div>
+    <div class="cardBackBox"></div>
+
+    <script>
+        window.onload = function () { //test
+            const CARDSIZE = 52;
+            const CARD_BACK_TIME = 1000;
+            const SAME_COLOR_NUMBER = 26;
+            const CARD_WIDTH = '80px';
+            const CARD_HEIGHT = '100px';
+            const CARD__MARGIN = '5px';
+
+            var cardArr = [];
+            var cardFront = new Array();
+            var cardBack = new Array();
+            var cardFlipArr = []; //여기에 뒤집힌 카드를 담자 !
+
+            //1. 배열 생성 -> for문으로 숫자 넣기
+            for (i = 0; i < CARDSIZE; i++) {
+                cardArr[i] = i;
+            }
+
+            //2. 요소 불러오기
+            const btns = document.querySelectorAll("button");
+            const cardFrontBox = document.querySelector('.cardFrontBox');
+            const cardBackBox = document.querySelector('.cardBackBox');
+
+            //3. 카드 이미지 불러오기
+            for (i = 0; i < cardArr.length; i++) {
+                cardFront[i] = new Image();
+                cardBack[i] = new Image();
+
+                cardFront[i].src = i + ".png";
+                cardBack[i].src = "52.png";
+
+                cardFront[i].style.width = CARD_WIDTH;
+                cardFront[i].style.height = CARD_HEIGHT;
+                cardFront[i].style.margin = CARD__MARGIN;
+
+                cardBack[i].style.width = CARD_WIDTH;
+                cardBack[i].style.height = CARD_HEIGHT;
+                cardBack[i].style.margin = CARD__MARGIN;
+
+                cardBack[i].addEventListener("click", cardclick);
+
+                cardFrontBox.appendChild(cardFront[i]);
+                cardBackBox.appendChild(cardBack[i]);
+            }
+
+
+            //4. btn, img 이벤트 적용
+            btns[0].addEventListener("click", AllCardShow);
+            btns[1].addEventListener("click", AllCardBack);
+            btns[2].addEventListener("click", CardShuffle);
+            btns[3].addEventListener("click", AllCardHidden);
+
+            //5. AllCardHidden() -> 전체 카드 숨기기 (화면 상에서 안보이게)
+            function AllCardHidden() {
+                for (i = 0; i < cardArr.length; i++) {
+                    cardFront[i].style.visibility = 'hidden';
+                    cardBack[i].style.visibility = 'hidden';
+                }
+            }
+            //6. AllCardShow() -> 전체 카드 앞면 보이기
+            function AllCardShow() {
+                for (i = 0; i < cardArr.length; i++) {
+                    cardFront[i].style.visibility = 'visible';
+                    cardBack[i].style.visibility = 'hidden';
+                }
+            }
+            //7. AllCardBack() -> 전체 카드 뒷면 보이기
+            function AllCardBack() {
+                for (i = 0; i < cardArr.length; i++) {
+                    cardFront[i].style.visibility = 'visible';
+                    cardBack[i].style.visibility = 'visible';
+                }
+            }
+            //8. CardShuffle() -> 카드 랜덤 섞기
+            function CardShuffle() {
+                cardArr.sort((a, b) => Math.random() - 0.5)
+
+                for (i = 0; i < cardArr.length; i++) {
+                    //cardFront[cardArr[i]].src = i + ".png";
+                    cardFront[i].src = cardArr[i] + ".png";
+                }
+
+            }
+
+            //9. 카드 클릭 시 이벤트 발생 -> 인덱스 부여
+            function cardclick(event) {
+                cardBack.forEach(element => {
+                    ////foreach의 파라미터 : 콜백 함수 (요소, index, 현재 map 메서드를 호출한 배열)
+                    element.onclick = (event) => {
+                        const nodes = [...event.target.parentElement.children];
+                        const index = nodes.indexOf(event.target);
+                        //현재 이벤트가 발생한 요소를 감싸고 있는 부모 요소에 접근하기 위해 target & parentElement 사용하여 접근 가능
+                        //... : 스프레드 연산자 (배열/객체 펼치거나 분해하는데 사용) -> 배열 or 객체의 요소를 개별적으로 추출하여 다른 배열이나 객체에 포함시킬 수 있음
+                        //nodes에 배열 형태로 자식 요소들이 들어가게 됨 (각 요소를 개별적으로 추출하여 새로운 배열에 포함시키기)
+
+                        cardFlip(index);
+                    }
+                })
+
+            } //end cardclick()
+
+
+            //10. 카드 매치 성공 or 실패
+            function cardFlip(index) {
+                //카드 뒤집은 수가 2개 미만일 때
+                if (cardFlipArr.length < 2) {
+                    cardFlipArr.push(index);
+                    cardBack[index].style.visibility = 'hidden';
+                }
+
+                //카드 뒤집은 수가 2개일 때
+                if (cardFlipArr.length === 2) {
+                    //카드 매치 성공 : 그대로 두기
+                    if (Math.abs(cardArr[cardFlipArr[0]] - cardArr[cardFlipArr[1]]) == SAME_COLOR_NUMBER) {
+                        setTimeout(function cardMatch() {
+                            cardBack[cardFlipArr[0]].style.visibility = 'hidden';
+                            cardBack[cardFlipArr[1]].style.visibility = 'hidden';
+                            cardFlipArr = [];//배열 초기화 (매치 성공 후 카드 냅두고 다른 카드 뒤집을 수 있게)
+                        }, CARD_BACK_TIME);//end cardMatch()
+                    }
+                        //카드 매치 실패 : 1초 뒤에 뒤집기
+                    if (Math.abs(cardArr[cardFlipArr[0]] - cardArr[cardFlipArr[1]]) != SAME_COLOR_NUMBER) {
+                        setTimeout(function () {
+                            cardBack[cardFlipArr[0]].style.visibility = 'visible';
+                            cardBack[cardFlipArr[1]].style.visibility = 'visible';
+                            cardFlipArr = [];//배열 초기화
+                        }, CARD_BACK_TIME);
+                    }
+                }
+            } //end cardFlip()
+
+        }
+    </script>
+</body>
+
+</html>
