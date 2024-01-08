@@ -1,0 +1,14 @@
+// 사이드 메뉴 영역이 footer에 닿으면 사라지게 하기
+
+window.addEventListener("scroll", function() {
+        var rect = footer.getBoundingClientRect(); // footer의 위치와 크기 정보를 가져옴
+        var footerHeight = document.body.scrollHeight - window.innerHeight; // footer의 높이 계산
+
+        if (rect.top < window.innerHeight) {
+            // 스크롤이 footer에 닿으면 fixed 요소의 top 위치를 늘림 + 사라지게 하기
+            fixedElement.style.top = (15 + footerHeight) + '%';
+        } else {
+            // 그렇지 않으면 원래 위치로
+            fixedElement.style.top = '15%';
+        }
+    });
