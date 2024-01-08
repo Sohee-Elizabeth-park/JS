@@ -1,0 +1,25 @@
+// Unix timestamp -> 일반 시각 변환
+
+function toConvertUnixTimestamp(rsp) {
+    // 1. payment() 내 불러온 rsp.paid_at 값을 저장할 변수 설정
+    let unix_timestamp = rsp.paid_at;
+
+    // 2. 유닉스 타임스탬프 기반 신규 자바스크립트 날짜 객체 생성
+    // 인자가 밀리초 단위가 되도록 1000 곱하기 (기존 유닉스 타임스탬프 : 초 단위임)
+    const date = new Date(unix_timestamp * 1000);
+
+    // 3-1. 타임스탬프에서 시간 가져오기
+    const hours = date.getHours();
+
+    // 3-2. 타임스탬프에서 분 가져오기
+    const minutes = "0" + date.getMinutes();
+
+    // 3-3. 타임스탬프에서 초 가져오기
+    const seconds = "0" + date.getSeconds();
+
+    // 4. 대중적인 시각 형식(24:50:50)으로 변환
+    const formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
+    // 5. 변환 된 형식의 시각 반환
+    return formattedTime;
+}
